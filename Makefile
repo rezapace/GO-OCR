@@ -133,25 +133,25 @@ deps: check-go ## Download and install Go dependencies
 .PHONY: build-dev
 build-dev: check-deps ## Build for development environment
 	@echo "$(BLUE)Building $(APP_NAME) for development...$(NC)"
-	@mkdir -p $(BUILD_DIR)/dev
-	CGO_ENABLED=1 go build $(DEV_LDFLAGS) -race -o $(BUILD_DIR)/dev/$(BINARY_NAME) $(MAIN_FILE)
-	@echo "$(GREEN)Development build completed: $(BUILD_DIR)/dev/$(BINARY_NAME)$(NC)"
+	@mkdir -p $(BUILD_DIR)
+	CGO_ENABLED=1 go build $(DEV_LDFLAGS) -race -o $(BUILD_DIR)/dev-$(BINARY_NAME) $(MAIN_FILE)
+	@echo "$(GREEN)Development build completed: $(BUILD_DIR)/dev-$(BINARY_NAME)$(NC)"
 
 # Build for staging
 .PHONY: build-staging
 build-staging: check-deps ## Build for staging environment
 	@echo "$(BLUE)Building $(APP_NAME) for staging...$(NC)"
-	@mkdir -p $(BUILD_DIR)/staging
-	CGO_ENABLED=1 go build $(LDFLAGS) -o $(BUILD_DIR)/staging/$(BINARY_NAME) $(MAIN_FILE)
-	@echo "$(GREEN)Staging build completed: $(BUILD_DIR)/staging/$(BINARY_NAME)$(NC)"
+	@mkdir -p $(BUILD_DIR)
+	CGO_ENABLED=1 go build $(LDFLAGS) -o $(BUILD_DIR)/staging-$(BINARY_NAME) $(MAIN_FILE)
+	@echo "$(GREEN)Staging build completed: $(BUILD_DIR)/staging-$(BINARY_NAME)$(NC)"
 
 # Build for production
 .PHONY: build-prod
 build-prod: check-deps ## Build for production environment
 	@echo "$(BLUE)Building $(APP_NAME) for production...$(NC)"
-	@mkdir -p $(BUILD_DIR)/prod
-	CGO_ENABLED=1 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/prod/$(BINARY_NAME) $(MAIN_FILE)
-	@echo "$(GREEN)Production build completed: $(BUILD_DIR)/prod/$(BINARY_NAME)$(NC)"
+	@mkdir -p $(BUILD_DIR)
+	CGO_ENABLED=1 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/prod-$(BINARY_NAME) $(MAIN_FILE)
+	@echo "$(GREEN)Production build completed: $(BUILD_DIR)/prod-$(BINARY_NAME)$(NC)"
 
 # Build all environments
 .PHONY: build-all
@@ -162,95 +162,115 @@ build-all: build-dev build-staging build-prod ## Build for all environments
 .PHONY: build-windows
 build-windows: check-deps ## Build for Windows (amd64)
 	@echo "$(BLUE)Building $(APP_NAME) for Windows (amd64)...$(NC)"
-	@mkdir -p $(BUILD_DIR)/windows/amd64
-	CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/windows/amd64/$(BINARY_NAME).exe $(MAIN_FILE)
-	@echo "$(GREEN)Windows build completed: $(BUILD_DIR)/windows/amd64/$(BINARY_NAME).exe$(NC)"
+	@mkdir -p $(BUILD_DIR)
+	CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/windows-amd64-$(BINARY_NAME).exe $(MAIN_FILE)
+	@echo "$(GREEN)Windows build completed: $(BUILD_DIR)/windows-amd64-$(BINARY_NAME).exe$(NC)"
 
 .PHONY: build-windows-386
 build-windows-386: check-deps ## Build for Windows (386)
 	@echo "$(BLUE)Building $(APP_NAME) for Windows (386)...$(NC)"
-	@mkdir -p $(BUILD_DIR)/windows/386
-	CGO_ENABLED=1 GOOS=windows GOARCH=386 CC=i686-w64-mingw32-gcc go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/windows/386/$(BINARY_NAME).exe $(MAIN_FILE)
-	@echo "$(GREEN)Windows 32-bit build completed: $(BUILD_DIR)/windows/386/$(BINARY_NAME).exe$(NC)"
+	@mkdir -p $(BUILD_DIR)
+	CGO_ENABLED=1 GOOS=windows GOARCH=386 CC=i686-w64-mingw32-gcc go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/windows-386-$(BINARY_NAME).exe $(MAIN_FILE)
+	@echo "$(GREEN)Windows 32-bit build completed: $(BUILD_DIR)/windows-386-$(BINARY_NAME).exe$(NC)"
 
 .PHONY: build-macos
 build-macos: check-deps ## Build for macOS (amd64)
 	@echo "$(BLUE)Building $(APP_NAME) for macOS (amd64)...$(NC)"
-	@mkdir -p $(BUILD_DIR)/darwin/amd64
-	CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/darwin/amd64/$(BINARY_NAME) $(MAIN_FILE)
-	@echo "$(GREEN)macOS Intel build completed: $(BUILD_DIR)/darwin/amd64/$(BINARY_NAME)$(NC)"
+	@mkdir -p $(BUILD_DIR)
+	CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/darwin-amd64-$(BINARY_NAME) $(MAIN_FILE)
+	@echo "$(GREEN)macOS build completed: $(BUILD_DIR)/darwin-amd64-$(BINARY_NAME)$(NC)"
 
 .PHONY: build-macos-arm64
-build-macos-arm64: check-deps ## Build for macOS Apple Silicon (arm64)
-	@echo "$(BLUE)Building $(APP_NAME) for macOS Apple Silicon (arm64)...$(NC)"
-	@mkdir -p $(BUILD_DIR)/darwin/arm64
-	CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/darwin/arm64/$(BINARY_NAME) $(MAIN_FILE)
-	@echo "$(GREEN)macOS Apple Silicon build completed: $(BUILD_DIR)/darwin/arm64/$(BINARY_NAME)$(NC)"
+build-macos-arm64: check-deps ## Build for macOS (arm64)
+	@echo "$(BLUE)Building $(APP_NAME) for macOS (arm64)...$(NC)"
+	@mkdir -p $(BUILD_DIR)
+	CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/darwin-arm64-$(BINARY_NAME) $(MAIN_FILE)
+	@echo "$(GREEN)macOS ARM64 build completed: $(BUILD_DIR)/darwin-arm64-$(BINARY_NAME)$(NC)"
 
 .PHONY: build-linux
 build-linux: check-deps ## Build for Linux (amd64)
 	@echo "$(BLUE)Building $(APP_NAME) for Linux (amd64)...$(NC)"
-	@mkdir -p $(BUILD_DIR)/linux/amd64
+	@mkdir -p $(BUILD_DIR)
 	@if [[ "$$(uname)" == "Darwin" ]]; then \
 		echo "$(YELLOW)Cross-compiling from macOS to Linux (CGO disabled)...$(NC)"; \
-		CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux/amd64/$(BINARY_NAME) $(MAIN_FILE); \
+		CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux-amd64-$(BINARY_NAME) $(MAIN_FILE); \
 	else \
-		CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux/amd64/$(BINARY_NAME) $(MAIN_FILE); \
+		CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux-amd64-$(BINARY_NAME) $(MAIN_FILE); \
 	fi
-	@echo "$(GREEN)Linux build completed: $(BUILD_DIR)/linux/amd64/$(BINARY_NAME)$(NC)"
+	@echo "$(GREEN)Linux build completed: $(BUILD_DIR)/linux-amd64-$(BINARY_NAME)$(NC)"
 
 .PHONY: build-linux-386
 build-linux-386: check-deps ## Build for Linux (386)
 	@echo "$(BLUE)Building $(APP_NAME) for Linux (386)...$(NC)"
-	@mkdir -p $(BUILD_DIR)/linux/386
+	@mkdir -p $(BUILD_DIR)
 	@if [[ "$$(uname)" == "Darwin" ]]; then \
 		echo "$(YELLOW)Cross-compiling from macOS to Linux (CGO disabled)...$(NC)"; \
-		CGO_ENABLED=0 GOOS=linux GOARCH=386 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux/386/$(BINARY_NAME) $(MAIN_FILE); \
+		CGO_ENABLED=0 GOOS=linux GOARCH=386 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux-386-$(BINARY_NAME) $(MAIN_FILE); \
 	else \
-		CGO_ENABLED=1 GOOS=linux GOARCH=386 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux/386/$(BINARY_NAME) $(MAIN_FILE); \
+		CGO_ENABLED=1 GOOS=linux GOARCH=386 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux-386-$(BINARY_NAME) $(MAIN_FILE); \
 	fi
-	@echo "$(GREEN)Linux 32-bit build completed: $(BUILD_DIR)/linux/386/$(BINARY_NAME)$(NC)"
+	@echo "$(GREEN)Linux 32-bit build completed: $(BUILD_DIR)/linux-386-$(BINARY_NAME)$(NC)"
 
 .PHONY: build-linux-arm64
 build-linux-arm64: check-deps ## Build for Linux ARM64
 	@echo "$(BLUE)Building $(APP_NAME) for Linux (arm64)...$(NC)"
-	@mkdir -p $(BUILD_DIR)/linux/arm64
+	@mkdir -p $(BUILD_DIR)
 	@if [[ "$$(uname)" == "Darwin" ]]; then \
 		echo "$(YELLOW)Cross-compiling from macOS to Linux (CGO disabled)...$(NC)"; \
-		CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux/arm64/$(BINARY_NAME) $(MAIN_FILE); \
+		CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux-arm64-$(BINARY_NAME) $(MAIN_FILE); \
 	else \
-		CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux/arm64/$(BINARY_NAME) $(MAIN_FILE); \
+		CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux-arm64-$(BINARY_NAME) $(MAIN_FILE); \
 	fi
-	@echo "$(GREEN)Linux ARM64 build completed: $(BUILD_DIR)/linux/arm64/$(BINARY_NAME)$(NC)"
+	@echo "$(GREEN)Linux ARM64 build completed: $(BUILD_DIR)/linux-arm64-$(BINARY_NAME)$(NC)"
 
 .PHONY: build-linux-arm
 build-linux-arm: check-deps ## Build for Linux ARM
 	@echo "$(BLUE)Building $(APP_NAME) for Linux (arm)...$(NC)"
-	@mkdir -p $(BUILD_DIR)/linux/arm
+	@mkdir -p $(BUILD_DIR)
 	@if [[ "$$(uname)" == "Darwin" ]]; then \
 		echo "$(YELLOW)Cross-compiling from macOS to Linux (CGO disabled)...$(NC)"; \
-		CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux/arm/$(BINARY_NAME) $(MAIN_FILE); \
+		CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux-arm-$(BINARY_NAME) $(MAIN_FILE); \
 	else \
-		CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux/arm/$(BINARY_NAME) $(MAIN_FILE); \
+		CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux-arm-$(BINARY_NAME) $(MAIN_FILE); \
 	fi
-	@echo "$(GREEN)Linux ARM build completed: $(BUILD_DIR)/linux/arm/$(BINARY_NAME)$(NC)"
+	@echo "$(GREEN)Linux ARM build completed: $(BUILD_DIR)/linux-arm-$(BINARY_NAME)$(NC)"
 
 # Build Linux with CGO (requires Linux environment or Docker)
 .PHONY: build-linux-cgo
 build-linux-cgo: check-deps ## Build for Linux with CGO enabled (requires Linux environment)
-	@echo "$(BLUE)Building $(APP_NAME) for Linux with CGO enabled...$(NC)"
+	@echo "$(BLUE)Building $(APP_NAME) for Linux with CGO...$(NC)"
 	@if [[ "$$(uname)" != "Linux" ]]; then \
-		echo "$(RED)Warning: Building Linux binaries with CGO from non-Linux systems may fail.$(NC)"; \
-		echo "$(YELLOW)Consider using Docker or a Linux environment for CGO builds.$(NC)"; \
+		echo "$(RED)Warning: Building Linux with CGO from non-Linux system may fail$(NC)"; \
+		echo "$(YELLOW)Consider using 'make docker-build-linux' instead$(NC)"; \
 	fi
-	@mkdir -p $(BUILD_DIR)/linux/amd64
-	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux/amd64/$(BINARY_NAME)-cgo $(MAIN_FILE)
-	@echo "$(GREEN)Linux CGO build completed: $(BUILD_DIR)/linux/amd64/$(BINARY_NAME)-cgo$(NC)"
+	@mkdir -p $(BUILD_DIR)
+	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux-amd64-cgo-$(BINARY_NAME) $(MAIN_FILE)
+	@echo "$(GREEN)Linux CGO build completed: $(BUILD_DIR)/linux-amd64-cgo-$(BINARY_NAME)$(NC)"
 
 # Build for all platforms
 .PHONY: build-cross-platform
-build-cross-platform: build-windows build-windows-386 build-macos build-macos-arm64 build-linux build-linux-386 build-linux-arm64 build-linux-arm ## Build for all platforms
-	@echo "$(GREEN)Cross-platform builds completed!$(NC)"
+build-cross-platform: check-deps ## Build for all platforms (cross-compilation)
+	@echo "$(BLUE)Building $(APP_NAME) for all platforms...$(NC)"
+	@echo "$(YELLOW)Note: Linux builds are compiled with CGO disabled for cross-platform compatibility$(NC)"
+	@echo "$(YELLOW)For CGO-enabled Linux builds, use 'make build-linux-cgo' on Linux or 'make docker-build-linux'$(NC)"
+	@mkdir -p $(BUILD_DIR)
+	@echo "$(BLUE)Building for Linux amd64...$(NC)"
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux-amd64-$(BINARY_NAME) $(MAIN_FILE)
+	@echo "$(BLUE)Building for Linux 386...$(NC)"
+	CGO_ENABLED=0 GOOS=linux GOARCH=386 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux-386-$(BINARY_NAME) $(MAIN_FILE)
+	@echo "$(BLUE)Building for Linux arm64...$(NC)"
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux-arm64-$(BINARY_NAME) $(MAIN_FILE)
+	@echo "$(BLUE)Building for Linux arm...$(NC)"
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux-arm-$(BINARY_NAME) $(MAIN_FILE)
+	@echo "$(BLUE)Building for macOS amd64...$(NC)"
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/darwin-amd64-$(BINARY_NAME) $(MAIN_FILE)
+	@echo "$(BLUE)Building for macOS arm64...$(NC)"
+	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/darwin-arm64-$(BINARY_NAME) $(MAIN_FILE)
+	@echo "$(BLUE)Building for Windows amd64...$(NC)"
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/windows-amd64-$(BINARY_NAME).exe $(MAIN_FILE)
+	@echo "$(BLUE)Building for Windows 386...$(NC)"
+	CGO_ENABLED=0 GOOS=windows GOARCH=386 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/windows-386-$(BINARY_NAME).exe $(MAIN_FILE)
+	@echo "$(GREEN)Cross-platform build completed!$(NC)"
 	@if [[ "$$(uname)" == "Darwin" ]]; then \
 		echo "$(YELLOW)Note: Linux builds were compiled with CGO disabled for cross-platform compatibility.$(NC)"; \
 		echo "$(YELLOW)For CGO-enabled Linux builds, use 'make build-linux-cgo' on a Linux system.$(NC)"; \
@@ -363,8 +383,9 @@ diagnose: ## Diagnose build environment and common issues
 	@echo "$(PURPLE)Build Recommendations:$(NC)"
 	@if [[ "$$(uname)" == "Darwin" ]]; then \
 		echo "  - Use 'make build-cross-platform' for basic cross-platform builds"; \
-		echo "  - Use 'make docker-build-linux' for Linux builds with CGO support"; \
+		echo "  - Use 'make docker-build-linux' for Linux builds with CGO support (requires Docker)"; \
 		echo "  - Use 'make build-linux-cgo' only on Linux systems"; \
+		echo "  - Docker builds use --platform=linux/amd64 for cross-platform compatibility"; \
 	else \
 		echo "  - All build targets should work natively"; \
 		echo "  - CGO is fully supported for all architectures"; \
@@ -452,11 +473,15 @@ docker-build-linux: ## Build Linux binaries using Docker (with CGO support)
 		echo "$(RED)Error: Docker is not installed or not in PATH$(NC)"; \
 		exit 1; \
 	fi
-	@mkdir -p $(BUILD_DIR)/linux/amd64
-	docker run --rm -v "$$(pwd)":/workspace -w /workspace golang:1.23-alpine sh -c \
-		"apk add --no-cache gcc musl-dev tesseract-ocr-dev && \
-		CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux/amd64/$(BINARY_NAME)-docker $(MAIN_FILE)"
-	@echo "$(GREEN)Docker Linux build completed: $(BUILD_DIR)/linux/amd64/$(BINARY_NAME)-docker$(NC)"
+	@mkdir -p $(BUILD_DIR)
+	@echo "$(YELLOW)Building for Linux amd64 using Docker...$(NC)"
+	docker run --rm --platform=linux/amd64 -v "$$(pwd)":/workspace -w /workspace \
+		-e GOCACHE=/tmp/gocache -e GOMODCACHE=/tmp/gomodcache \
+		golang:1.23-alpine sh -c \
+		"apk add --no-cache --virtual .build-deps gcc musl-dev tesseract-ocr-dev && \
+		CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -trimpath -o $(BUILD_DIR)/linux-amd64-docker-$(BINARY_NAME) $(MAIN_FILE) && \
+		apk del .build-deps"
+	@echo "$(GREEN)Docker Linux build completed: $(BUILD_DIR)/linux-amd64-docker-$(BINARY_NAME)$(NC)"
 
 # Install development tools
 .PHONY: install-dev-tools
@@ -523,10 +548,8 @@ security: ## Run security checks
 .PHONY: clean
 clean: ## Clean build artifacts
 	@echo "$(BLUE)Cleaning build artifacts...$(NC)"
-	rm -rf $(BUILD_DIR)
-	rm -f coverage.out coverage.html
-	rm -rf tmp/
-	@echo "$(GREEN)Clean completed!$(NC)"
+	@rm -rf $(BUILD_DIR)
+	@echo "$(GREEN)Build artifacts cleaned$(NC)"
 
 .PHONY: clean-all
 clean-all: clean ## Clean everything including dependencies
